@@ -81,40 +81,35 @@
         dirLight.shadow.camera.far = 20;
         scene.add(dirLight);
 
-        // HDR Environment and Model Load
-        const hdrPath = '/threejs-model/textures/equirectangular/royal_esplanade_1k.hdr'; // Adjust path for GitHub Pages
-        const modelPath = '/threejs-model/models/Bliss_SFI.glb'; // Adjust path for GitHub Pages
+    const hdrPath = 'textures/equirectangular/royal_esplanade_1k.hdr';
+const modelPath = 'models/Bliss_SFI.glb';
 
-        new RGBELoader().load(hdrPath, (texture) => {
-          texture.mapping = THREE.EquirectangularReflectionMapping;
-          scene.environment = texture;
-          scene.background = new THREE.Color(0x404040); // optional fallback
+new RGBELoader().load(hdrPath, (texture) => {
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  scene.environment = texture;
+  scene.background = new THREE.Color(0x404040);
 
-          const loader = new GLTFLoader();
-          loader.load(modelPath,
-            (gltf) => {
-              model = gltf.scene;
-              model.traverse(child => {
-                if (child.isMesh) {
-                  child.castShadow = true;
-                  child.receiveShadow = true;
-                }
-              });
-              model.position.y = 0.5;
-              model.scale.set(0.5, 0.5, 0.5);
-              scene.add(model);
-              animate();
-            },
-            undefined,
-            (error) => {
-              console.error("Error loading model:", error);
-            }
-          );
-        },
-        undefined,
-        (error) => {
-          console.error("Error loading HDR:", error);
-        });
+  const loader = new GLTFLoader();
+  loader.load(modelPath,
+    (gltf) => {
+      model = gltf.scene;
+      model.traverse(child => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+      model.position.y = 0.5;
+      model.scale.set(0.5, 0.5, 0.5);
+      scene.add(model);
+      animate();
+    },
+    undefined,
+    (error) => console.error("Error loading model:", error)
+  );
+},
+undefined,
+(error) => console.error("Error loading HDR:", error));
 
         window.addEventListener('resize', () => {
           camera.aspect = window.innerWidth / window.innerHeight;
