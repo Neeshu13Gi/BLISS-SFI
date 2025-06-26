@@ -28,7 +28,7 @@
       import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
       let scene, camera, renderer, controls;
-      let plane, model, dirLight, backgroundSphere;
+      let model;
 
       init();
 
@@ -41,62 +41,79 @@
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.shadowMap.type = THREE.PCFShadowMap;
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFShadowMap;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         document.body.appendChild(renderer.domElement);
 
         controls = new OrbitControls(camera, renderer.domElement);
         controls.target.set(0, 1, 0);
-        controls.minDistance = 2;
-        controls.maxDistance = 10;
+        controls.minDistance = 2.5;
+        controls.maxDistance = 9;
         controls.update();
 
-        // Background
+        // Background Sphere
         const bgMaterial = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.5, side: THREE.BackSide });
-        backgroundSphere = new THREE.Mesh(new THREE.SphereGeometry(50, 64, 64), bgMaterial);
+        const backgroundSphere = new THREE.Mesh(new THREE.SphereGeometry(50, 64, 64), bgMaterial);
         scene.add(backgroundSphere);
 
-        // Plane
-        plane = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.ShadowMaterial({ opacity: 0.25 }));
+        // Ground Shadow Plane
+        const plane = new THREE.Mesh(
+          new THREE.PlaneGeometry(20, 20),
+          new THREE.ShadowMaterial({ opacity: 0.25 })
+        );
         plane.rotation.x = -Math.PI / 2;
         plane.receiveShadow = true;
-        plane.position.y = -0.2;
+        plane.position.y = 0.2;
         scene.add(plane);
 
-        scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.0));
+        // Lighting
+        scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1));
 
-        dirLight = new THREE.DirectionalLight(0xffffff, 2);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
         dirLight.position.set(5, 10, 5);
         dirLight.castShadow = true;
-        dirLight.shadow.mapSize.width = 1080;
-        dirLight.shadow.mapSize.height = 1080;
-        dirLight.shadow.camera.near = 0.5;
-        dirLight.shadow.camera.far = 20;
+        dirLight.shadow.mapSize.set(1024, 1024);
         dirLight.shadow.camera.left = -10;
         dirLight.shadow.camera.right = 10;
         dirLight.shadow.camera.top = 10;
         dirLight.shadow.camera.bottom = -10;
-        dirLight.shadow.bias = -0.0001;
-        dirLight.shadow.radius = 2;
+        dirLight.shadow.camera.near = 0.5;
+        dirLight.shadow.camera.far = 20;
         scene.add(dirLight);
 
-        new RGBELoader().setPath('textures/equirectangular/').load('royal_esplanade_1k.hdr', (texture) => {
+        // HDR Environment and Model Load
+        const hdrPath = '/threejs-model/textures/equirectangular/royal_esplanade_1k.hdr'; // Adjust path for GitHub Pages
+        const modelPath = '/threejs-model/models/Bliss_SFI.glb'; // Adjust path for GitHub Pages
+
+        new RGBELoader().load(hdrPath, (texture) => {
           texture.mapping = THREE.EquirectangularReflectionMapping;
           scene.environment = texture;
-            
+          scene.background = new THREE.Color(0x404040); // optional fallback
+
           const loader = new GLTFLoader();
-          loader.load('./models/Bliss_GlassLevelGauge.glb', (gltf) => {
-            model = gltf.scene;
-            model.traverse(child => {
-              if (child.isMesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
-              }
-            });
-            scene.add(model);
-            animate();
-          });
+          loader.load(modelPath,
+            (gltf) => {
+              model = gltf.scene;
+              model.traverse(child => {
+                if (child.isMesh) {
+                  child.castShadow = true;
+                  child.receiveShadow = true;
+                }
+              });
+              model.position.y = 0.5;
+              model.scale.set(0.5, 0.5, 0.5);
+              scene.add(model);
+              animate();
+            },
+            undefined,
+            (error) => {
+              console.error("Error loading model:", error);
+            }
+          );
+        },
+        undefined,
+        (error) => {
+          console.error("Error loading HDR:", error);
         });
 
         window.addEventListener('resize', () => {
