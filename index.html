@@ -84,8 +84,8 @@
         dirLight.shadow.camera.far = 20;
         scene.add(dirLight);
 
-    const hdrPath = 'https://github.com/Neeshu13Gi/BLISS-SFI/blob/main/textures/equirectangular/royal_esplanade_1k.hdr';
-    const modelPath = 'https://github.com/Neeshu13Gi/BLISS-SFI/blob/main/models/Bliss_SFI.glb';
+    const hdrPath = 'textures/equirectangular/royal_esplanade_1k.hdr';
+    const modelPath = 'models/Bliss_SFI.glb';
 
 new RGBELoader().load(hdrPath, (texture) => {
   texture.mapping = THREE.EquirectangularReflectionMapping;
