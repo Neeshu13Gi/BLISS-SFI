@@ -11,8 +11,11 @@
       }
     </style>
   </head>
+  
   <body>
+    <script src="https://gist.github.com/Gargijadaun/e77c77d4fec81009da1a58da867bdc12.js"></script>
     <script type="importmap">
+
       {
         "imports": {
           "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
@@ -63,7 +66,7 @@
         );
         plane.rotation.x = -Math.PI / 2;
         plane.receiveShadow = true;
-        plane.position.y = 0.2;
+        plane.position.y = -0.3;
         scene.add(plane);
 
         // Lighting
@@ -82,7 +85,7 @@
         scene.add(dirLight);
 
     const hdrPath = 'textures/equirectangular/royal_esplanade_1k.hdr';
-const modelPath = 'models/Bliss_SFI.glb';
+    const modelPath = 'models/Bliss_SFI.glb';
 
 new RGBELoader().load(hdrPath, (texture) => {
   texture.mapping = THREE.EquirectangularReflectionMapping;
@@ -99,8 +102,8 @@ new RGBELoader().load(hdrPath, (texture) => {
           child.receiveShadow = true;
         }
       });
-      model.position.y = 0.5;
-      model.scale.set(0.5, 0.5, 0.5);
+      model.position.y = -0.1;
+      model.scale.set(1, 1, 1);
       scene.add(model);
       animate();
     },
