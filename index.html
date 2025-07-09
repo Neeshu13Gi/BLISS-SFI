@@ -190,7 +190,7 @@
       );
       plane.rotation.x = -Math.PI / 2;
       plane.receiveShadow = true;
-      plane.position.y = -0.3;
+      plane.position.y = -0.6;
       scene.add(plane);
 
       scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1));
@@ -220,8 +220,10 @@
             }
           });
 
-          model.position.y = -0.1;
+          model.position.y = -0.3;
+           model.position.x = 0;
           model.scale.set(1, 1, 1);
+            model.rotation.set(0, -1.15, 0);
           scene.add(model);
 
           mixer = new THREE.AnimationMixer(model);
@@ -229,7 +231,7 @@
             const action = mixer.clipAction(clip);
             animationActions.push(action);
           });
-          playAnimation(0);
+          
           animate();
         });
       });
@@ -242,11 +244,25 @@
     }
 
     function playAnimation(index) {
-      if (!animationActions[index]) return;
-      if (activeAction) activeAction.stop();
-      activeAction = animationActions[index];
-      activeAction.reset().play();
-    }
+  if (!animationActions[index]) return;
+
+  // Reset rotation based on which animation is playing
+  if (index === 2) {
+    // For third animation (Animation_03), set rotation to (0, 0, 0)
+    model.rotation.set(0, 0, 0);
+  } else {
+    // For other animations, restore default rotation
+    model.rotation.set(0, -1.1, 0);
+  }
+
+  // Stop currently playing action
+  if (activeAction) activeAction.stop();
+
+  // Play selected animation
+  activeAction = animationActions[index];
+  activeAction.reset().play();
+}
+
 
     function animate() {
       requestAnimationFrame(animate);
