@@ -211,6 +211,9 @@
   <nav>
     <div class="logo">BLISS Sight Flow Indicator</div>
   </nav>
+<div id="loading" style="color:white; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%)">
+  Loading model...
+</div>
 
   <!-- Product Info Section -->
  <!-- Product Info Section -->
@@ -248,6 +251,7 @@
 
   <!-- Three.js Script -->
   <script type="module">
+    
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -315,6 +319,7 @@
 
         const loader = new GLTFLoader();
         loader.load(modelPath, (gltf) => {
+            document.getElementById('loading').style.display = 'none';
           model = gltf.scene;
           model.traverse(child => {
             if (child.isMesh) {
