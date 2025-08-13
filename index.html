@@ -13,7 +13,7 @@
       height: 100%;
       overflow: hidden;
       font-family: 'Segoe UI', sans-serif;
-    background-color: #333; /* <-- Gray color */
+    background-color: #64B5F6; /* <-- Gray color */
     }
 
     canvas {
@@ -241,7 +241,7 @@
   font-size: clamp(20px, 3vw, 26px);
   margin-bottom: 12px;
   text-transform: uppercase;
-  color: #00bfff;
+  color: #030303;
 }
 
 .product-info ul {
@@ -336,11 +336,18 @@
       controls.maxDistance = 9;
       controls.update();
 
-      // Lighting & Environment
-      const backgroundSphere = new THREE.Mesh(
-        new THREE.SphereGeometry(50, 64, 64),
-        new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.5, side: THREE.BackSide })
-      );
+     const backgroundSphere = new THREE.Mesh(
+  new THREE.SphereGeometry(50, 64, 64),
+  new THREE.MeshStandardMaterial({
+    color: '#64B5F6',
+    roughness: 0.5,
+    metalness: 0.5,
+    side: THREE.BackSide,
+    emissive: '#64B5F6',
+    emissiveIntensity: 0.2
+  })
+);
+
       scene.add(backgroundSphere);
 
       const plane = new THREE.Mesh(
@@ -352,9 +359,9 @@
       plane.position.y = -0.6;
       scene.add(plane);
 
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1));
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.2));
 
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.1);
       dirLight.position.set(5, 10, 5);
       dirLight.castShadow = true;
       dirLight.shadow.mapSize.set(1024, 1024);
@@ -367,7 +374,7 @@
       new RGBELoader().load(hdrPath, (texture) => {
         texture.mapping = THREE.EquirectangularReflectionMapping;
         scene.environment = texture;
-       scene.background = new THREE.Color(0x333333); 
+       scene.background = new THREE.Color('#64B5F6'); 
 
         const loader = new GLTFLoader();
         loader.load(modelPath, (gltf) => {
@@ -404,7 +411,7 @@
     model.scale.set(0.8, 0.8, 0.8);
     model.position.set(0, -0.3, 0);
   } else {
-    model.scale.set(1, 1, 1);
+    model.scale.set(0.8, 0.8, 0.8);
     model.position.set(0, -0.3, 0);
   }
 }
@@ -428,10 +435,8 @@
   // Reset rotation based on which animation is playing
   if (index === 1) {
     // For third animation (Animation_03), set rotation to (0, 0, 0)
-    model.rotation.set(0, 0, 0);
-  } else {
-    // For other animations, restore default rotation
-    model.rotation.set(0, -1.1, 0);
+    model.rotation.set(0, 0.2, 0);
+    model.position.set(0, -0.2, 0);
   }
 
   // Stop currently playing action
