@@ -432,7 +432,7 @@
           });
 
           model.rotation.y = -45.2;
-          model.position.set(0.1, -0.5, -1);
+          model.position.set(0, -0.5, -1);
           model.scale.set(0.7, 0.7, 0.7);
           scene.add(model);
       mixer = new THREE.AnimationMixer(model);
@@ -465,13 +465,39 @@
       });
     }
 
-    function playAnimation(index) {
-      if (!animationActions[index]) return;
-      if (activeAction) activeAction.stop();
-      activeAction = animationActions[index];
-      activeAction.reset().play();
-    }
+    // function playAnimation(index) {
+    //   if (!animationActions[index]) return;
+    //   if (activeAction) activeAction.stop();
+    //   activeAction = animationActions[index];
+    //   activeAction.reset().play();
+    // }
 
+function playAnimation(index) {
+  if (!animationActions[index]) return;
+
+  // Stop previous animation
+  if (activeAction) activeAction.stop();
+  activeAction = animationActions[index];
+  activeAction.reset().play();
+
+  // Change model transform depending on animation
+  switch (index) {
+    case 0: // Animation_01
+      model.position.set(0, -0.5, -1);
+      model.rotation.set(0, -0.8, 0); // radians (-45.2° ≈ -0.8 rad)
+      break;
+
+    case 1: // Animation_02
+      model.position.set(-0.4, -0.4, -1);
+      model.rotation.set(0, 0.3, 0); // 90° on Y
+      break;
+
+    case 2: // Animation_03
+      model.position.set(-0.4, -0.4, -1);
+      model.rotation.set(0, 0.3, 0);
+      break;
+  }
+}
 
   
     function animate() {
