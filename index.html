@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>BLISS Sight Flow Indicator</title>
   <meta charset="utf-8" />
@@ -263,34 +264,29 @@
   <nav>
     <div class="logo">BLISS Sight Flow Indicator</div>
   </nav>
-<div id="loading" style="color:white; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%)">
-  Loading model..
-</div>
-
+  <div id="loading" style="color:white; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%)">
+    Loading model...
+  </div>
   <!-- Product Info Section -->
- <!-- Product Info Section -->
-<div class="product-info">
-  <h1>Sight Flow Indicator</h1>
-  <ul>
+  <div class="product-info">
+    <h1>Sight Flow Indicator</h1>
+ <ul>
     <li>Real-time visual monitoring of liquid or solid flow</li>
     <li>Reliable under varying pressure, flow & temperature</li>
     <li>Clear indication of flow direction, rate & medium</li>
     <li>Enables inspection for dirt, scale & foreign matter</li>
     <li>More dependable than electronic flow sensors</li>
   </ul>
-</div>
+  </div>
 
   <!-- Category Buttons -->
   <div class="categories">
     <div class="category-card level">Animation_01</div>
     <div class="category-card plug">Animation_02</div>
-    <!-- <div class="category-card ball">Animation_03</div> -->
+    <div class="category-card ball">Animation_03</div>
   </div>
 
-
-<button id="infoToggleBtn" class="info-toggle-btn">Show Product Info</button>
-
-  
+  <button id="infoToggleBtn" class="info-toggle-btn">Show Product Info</button>
   <!-- Three.js Import Map -->
   <script type="importmap">
     {
@@ -303,11 +299,12 @@
 
   <!-- Three.js Script -->
   <script type="module">
-    
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+    import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js';
 
     let scene, camera, renderer, controls;
     let model, mixer;
@@ -323,98 +320,139 @@
       camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
       camera.position.set(2, 2, 5);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.domElement.style.opacity = 0; // Start invisible
       document.body.appendChild(renderer.domElement);
 
       controls = new OrbitControls(camera, renderer.domElement);
       controls.target.set(0, 1, 0);
-      controls.minDistance = 2.5;
-      controls.maxDistance = 9;
+      controls.minDistance = 1;
+      controls.maxDistance = 10;
       controls.update();
 
-     const backgroundSphere = new THREE.Mesh(
-  new THREE.SphereGeometry(50, 64, 64),
-  new THREE.MeshStandardMaterial({
-    color: '#64B5F6',
-    roughness: 0.5,
-    metalness: 0.5,
-    side: THREE.BackSide,
-    emissive: '#64B5F6',
-    emissiveIntensity: 0.2
-  })
-);
-
+      // Lighting & Environment
+      const backgroundSphere = new THREE.Mesh(
+        new THREE.SphereGeometry(50, 64, 64),
+        new THREE.MeshStandardMaterial({
+          color: '#64B5F6',
+          roughness: 0.5,
+          metalness: 0.5,
+          side: THREE.BackSide,
+          emissive: '#64B5F6',
+          emissiveIntensity: 0.2
+        })
+      );
       scene.add(backgroundSphere);
 
       const plane = new THREE.Mesh(
-        new THREE.PlaneGeometry(20, 20),
-        new THREE.ShadowMaterial({ opacity: 0.25 })
-      );
+      new THREE.PlaneGeometry(20, 20),
+      new THREE.ShadowMaterial({ opacity: 0.2 }) // More visible shadows
+    );
       plane.rotation.x = -Math.PI / 2;
-      plane.receiveShadow = true;
-      plane.position.y = -0.6;
-      scene.add(plane);
+    plane.position.y = -0.8;
+    plane.receiveShadow = true;
+    scene.add(plane);
+    
 
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.2));
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1));
 
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.1);
-      dirLight.position.set(5, 10, 5);
-      dirLight.castShadow = true;
-      dirLight.shadow.mapSize.set(1024, 1024);
-      scene.add(dirLight);
-
-      // Load Environment & Model
+   const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(5, 10, 5);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 2048;
+    dirLight.shadow.mapSize.height = 2048;
+    dirLight.shadow.camera.near = 0.5;
+    dirLight.shadow.camera.far = 50;
+    dirLight.shadow.camera.left = -10;
+    dirLight.shadow.camera.right = 10;
+    dirLight.shadow.camera.top = 10;
+    dirLight.shadow.camera.bottom = -10;
+    scene.add(dirLight);
+    scene.add(dirLight.target); 
+    
+          // Load Environment & Model
       const hdrPath = 'textures/equirectangular/royal_esplanade_1k.hdr';
-      const modelPath = 'models/Sight Flow Indicator.glb';
-
+      const modelPath = 'models/Sight Flow Indicator-2.glb';
+        
+    
       new RGBELoader().load(hdrPath, (texture) => {
         texture.mapping = THREE.EquirectangularReflectionMapping;
         scene.environment = texture;
-       scene.background = new THREE.Color('#64B5F6'); 
+        scene.background = new THREE.Color(0x000000,0);
+    
+
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
 
         const loader = new GLTFLoader();
+        loader.setDRACOLoader(dracoLoader);
+
         loader.load(modelPath, (gltf) => {
-            document.getElementById('loading').style.display = 'none';
+          document.getElementById('loading').style.display = 'none';
           model = gltf.scene;
           model.traverse(child => {
             if (child.isMesh) {
               child.castShadow = true;
               child.receiveShadow = true;
+              child.material.transparent = false;
+              
+                child.material.roughness = 0.5;   // lower = shinier reflections
+              child.material.metalness = 0.5;   // higher = more metallic look
+                if (child.material.name === "pipe") {
+                  
+           child.material = new THREE.MeshPhysicalMaterial({
+        color: 0xD3D3D3,        // white base
+        metalness: 0,          // slight metallic feel
+        roughness: 0.01,         // smooth glassy look
+        transparent: true,       // allow transparency
+        opacity: 0.3,            // set opacity
+        transmission: 1.0,       // real glass effect
+        // thickness: 0.5,          // thickness of the glass
+        side: THREE.FrontSide,   // only front faces visible
+        blending: THREE.CustomBlending,
+        blendEquation: THREE.AddEquation,
+        blendSrc: THREE.SrcAlphaFactor,
+        blendDst: THREE.OneMinusSrcAlphaFactor,
+           depthWrite: false   // 👈 important for layered transparency
+      });
+
+        child.material.needsUpdate = true;
+      }
+
+
+      if (child.material.name === "png_arrow") {
+           child.material.transparent = true;
+      }
+  
             }
           });
 
-          model.position.y = -0.3;
-           model.position.x = 0;
-          model.scale.set(1, 1, 1);
-            model.rotation.set(0, -1.15, 0);
+          model.rotation.y = -45.2;
+          model.position.set(0.1, -0.5, -1);
+          model.scale.set(0.7, 0.7, 0.7);
           scene.add(model);
-          updateModelForScreenSize();
+      mixer = new THREE.AnimationMixer(model);
+            gltf.animations.forEach((clip, i) => {
+              const action = mixer.clipAction(clip);
 
-          mixer = new THREE.AnimationMixer(model);
-          gltf.animations.forEach((clip, index) => {
-            const action = mixer.clipAction(clip);
-            animationActions.push(action);
+              animationActions.push(action);
+            });
+      if (animationActions[0]) {
+        activeAction = animationActions[0];
+        activeAction.reset().play();
+      }
+       
+          // Fade in renderer & model
+          gsap.to(renderer.domElement.style, { opacity: 1, duration: 1.5 });
+          model.traverse(child => {
+            if (child.isMesh && child.material) {
+              gsap.to(child.material, { opacity: 1, duration: 1.5 });
+            }
           });
-          function updateModelForScreenSize() {
-  const width = window.innerWidth;
-
-  if (!model) return;
-
-  if (width <= 500) {
-    model.scale.set(0.6, 0.6, 0.6);
-    model.position.set(0, -0.2, 0);
-  } else if (width <= 768) {
-    model.scale.set(0.8, 0.8, 0.8);
-    model.position.set(0, -0.3, 0);
-  } else {
-    model.scale.set(0.8, 0.8, 0.8);
-    model.position.set(0, -0.3, 0);
-  }
-}
 
           animate();
         });
@@ -424,30 +462,18 @@
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-        updateModelForScreenSize();
-
       });
     }
 
     function playAnimation(index) {
-  if (!animationActions[index]) return;
-
-  // Reset rotation based on which animation is playing
-  if (index === 1) {
-    // For third animation (Animation_03), set rotation to (0, 0, 0)
-    model.rotation.set(0, 0.2, 0);
-    model.position.set(0, -0.2, 0);
-  }
-
-  // Stop currently playing action
-  if (activeAction) activeAction.stop();
-
-  // Play selected animation
-  activeAction = animationActions[index];
-  activeAction.reset().play();
-}
+      if (!animationActions[index]) return;
+      if (activeAction) activeAction.stop();
+      activeAction = animationActions[index];
+      activeAction.reset().play();
+    }
 
 
+  
     function animate() {
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
@@ -462,14 +488,16 @@
       document.querySelector('.category-card.ball')?.addEventListener('click', () => playAnimation(2));
     });
 
-      const toggleBtn = document.getElementById('infoToggleBtn');
-  const productInfo = document.querySelector('.product-info');
+    const toggleBtn = document.getElementById('infoToggleBtn');
+    const productInfo = document.querySelector('.product-info');
 
-  toggleBtn.addEventListener('click', () => {
-    const isVisible = productInfo.style.display === 'block';
-    productInfo.style.display = isVisible ? 'none' : 'block';
-    toggleBtn.textContent = isVisible ? 'Show Product Info' : 'Hide Product Info';
-  });
-  </script>
+    toggleBtn.addEventListener('click', () => {
+      const isVisible = productInfo.style.display === 'block';
+      productInfo.style.display = isVisible ? 'none' : 'block';
+      toggleBtn.textContent = isVisible ? 'Show Product Info' : 'Hide Product Info';
+    });
+</script>
+
 </body>
+
 </html>
